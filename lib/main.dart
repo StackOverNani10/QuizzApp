@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:quizz_app/quiz_brain.dart';
-import 'question.dart';
 
 void main() => runApp(QuizzApp());
 

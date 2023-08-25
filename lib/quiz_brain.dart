@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'question.dart';
+import 'package:rflutter_alert/rflutter_alert.dart';
 
 class QuizzBrain extends StatefulWidget {
   @override
@@ -7,6 +8,59 @@ class QuizzBrain extends StatefulWidget {
 }
 
 class _QuizzBrainState extends State<QuizzBrain> {
+  Key key = UniqueKey();
+
+  void restartQuizz(){
+    setState(() {
+      key = UniqueKey();
+    });
+  }
+
+  List<Icon> scoreIcons = [];
+  int correctAnswer = 0;
+  int questionIndex = 1;
+
+  void checkAnswer(bool theAnswer) {
+    bool optionSelected = listQuestion[questionIndex].answer;
+    setState(() {
+      if (theAnswer == optionSelected) {
+        scoreIcons.add(Icon(
+          Icons.check,
+          color: Colors.green,
+        ));
+        correctAnswer++;
+      } else {
+        scoreIcons.add(Icon(
+          Icons.close,
+          color: Colors.red,
+        ));
+      }
+      if (questionIndex < listQuestion.length - 1) {
+        questionIndex++;
+      } else {
+        Alert(
+            context: context,
+            title: "Quizz Score",
+            desc: "Tu puntuacion es $correctAnswer de ${listQuestion.length}",
+            buttons: [
+              DialogButton(
+                child: Text(
+                  'Volver a Inicio',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 24,
+                  ),
+                ),
+                onPressed: () => Navigator.pop(context),
+              )
+            ]).show();
+        questionIndex = 1;
+        correctAnswer = 0;
+        scoreIcons.clear();
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -14,12 +68,12 @@ class _QuizzBrainState extends State<QuizzBrain> {
       body: Center(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
-          mainAxisAlignment: MainAxisAlignment.end,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Container(
-              padding: EdgeInsets.fromLTRB(15, 0, 15, 200),
+              padding: EdgeInsets.fromLTRB(0, 60, 0, 0),
               child: Text(
-                "Question Here!",
+                'Pregunta ${questionIndex} de ${listQuestion.length}',
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.w500,
@@ -27,21 +81,18 @@ class _QuizzBrainState extends State<QuizzBrain> {
                 ),
                 textAlign: TextAlign.center,
               ),
-              /*child: ListView.builder(
-                itemCount: widget.Question.length,
-                itemBuilder: (BuildContext context, index) {
-                  final ingredient = widget.Questions.question;
-                  return Text(
-                    '',
-                    style: TextStyle(
-                      fontSize: 26,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.white,
-                    ),
-                    textAlign: TextAlign.center,
-                    );
-                  },
-              ),*/
+            ),
+            Container(
+              padding: EdgeInsets.fromLTRB(15, 200, 15, 100),
+              child: Text(
+                listQuestion[questionIndex].question,
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.white,
+                ),
+                textAlign: TextAlign.center,
+              ),
             ),
             Container(
               padding: EdgeInsets.all(10),
@@ -59,11 +110,13 @@ class _QuizzBrainState extends State<QuizzBrain> {
                   backgroundColor:
                       MaterialStateProperty.all<Color>(Colors.green),
                 ),
-                onPressed: () {},
+                onPressed: () {
+                  checkAnswer(true);
+                },
               ),
             ),
             Container(
-              padding: EdgeInsets.fromLTRB(10, 20, 10, 10),
+              padding: EdgeInsets.all(10),
               child: TextButton(
                 child: Text(
                   "Falso",
@@ -77,19 +130,14 @@ class _QuizzBrainState extends State<QuizzBrain> {
                   padding: MaterialStateProperty.all(EdgeInsets.all(25)),
                   backgroundColor: MaterialStateProperty.all<Color>(Colors.red),
                 ),
-                onPressed: () {},
+                onPressed: () {
+                  checkAnswer(false);
+                },
               ),
             ),
-            Container(
-              padding: EdgeInsets.all(10),
-              child: Text(
-                'Icono respuesta',
-                style: TextStyle(
-                  color: Colors.white,
-                ),
-                textAlign: TextAlign.center,
-              ),
-            ),
+            Row(
+              children: scoreIcons,
+            )
           ],
         ),
       ),
